@@ -1,10 +1,10 @@
 package db
 
 import (
- "database/sql"
- "os"
+	"database/sql"
+	"os"
 
- _ "modernc.org/sqlite"
+	_ "modernc.org/sqlite"
 )
 
 var DB *sql.DB
@@ -23,24 +23,25 @@ CREATE INDEX idx_scheduler_date ON scheduler(date);
 
 func Init(dbFile string) error {
 
- _, err := os.Stat(dbFile)
+	_, err := os.Stat(dbFile)
 
- var install bool
- if err != nil {
-  install = true
- }
+	var install bool
+	if err != nil {
+		install = true
+	}
 
- DB, err = sql.Open("sqlite", dbFile)
- if err != nil {
-  return err
- }
+	DB, err = sql.Open("sqlite", dbFile)
+	if err != nil {
+		return err
+	}
 
- if install {
-  _, err = DB.Exec(schema)
-  if err != nil {
-   return err
-  }
- }
+	if install {
+		_, err = DB.Exec(schema)
+		if err != nil {
+			DB.Close()
+			return err
+		}
+	}
 
- return nil
+	return nil
 }

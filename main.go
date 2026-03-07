@@ -1,41 +1,43 @@
 package main
 
 import (
- "log"
- "net/http"
- "os"
+	"log"
+	"net/http"
+	"os"
 
- "go_final_project/pkg/api"
- "go_final_project/pkg/db"
-  _ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3"
+	"go_final_project/pkg/api"
+	"go_final_project/pkg/db"
 )
 
 func main() {
 
-  // инициализация БД
- err := db.Init("scheduler.db")
- if err != nil {
-  log.Fatal(err)
- }
-   
- port := os.Getenv("TODO_PORT")
- if port == "" {
-  port = "7540"
- }
+	// инициализация БД
+	err := db.Init("scheduler.db")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer db.DB.Close()
 
- webDir := "./web"
+	port := os.Getenv("TODO_PORT")
+	if port == "" {
+		port = "7540"
+	}
 
-  // регистрация API обработчиков
- api.Init()
+	webDir := "./web"
 
- //сервер
- http.Handle("/", http.FileServer(http.Dir(webDir)))
+	// регистрация API обработчиков
+	api.Init()
 
- log.Println("Server started on http://localhost:" + port)
+	//сервер
+	http.Handle("/", http.FileServer(http.Dir(webDir)))
 
- // запуск 
- err = http.ListenAndServe(":"+port, nil)
- if err != nil {
-  log.Fatal(err)
- }
+	log.Println("Server started on http://localhost:" + port)
+
+	// запуск
+	err = http.ListenAndServe(":"+port, nil)
+	if err != nil {
+		log.Println(err)
+	}
 }
