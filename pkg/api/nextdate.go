@@ -97,5 +97,9 @@ func nextDayHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(next))
+	_, err = w.Write([]byte(next))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

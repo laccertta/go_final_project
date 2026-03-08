@@ -55,28 +55,38 @@ func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 	// читаем JSON
 	err := json.NewDecoder(r.Body).Decode(&task)
 	if err != nil {
-		writeJSON(w, map[string]string{"error": err.Error()})
+		writeJSONStatus(w, http.StatusBadRequest, map[string]string{
+			"error": err.Error(),
+		})
 		return
 	}
 
 	if task.Title == "" {
-		writeJSON(w, map[string]string{"error": "task title not specified"})
+		writeJSONStatus(w, http.StatusBadRequest, map[string]string{
+			"error": "task title not specified",
+		})
 		return
 	}
 
 	// проверка даты
 	err = checkDate(&task)
 	if err != nil {
-		writeJSON(w, map[string]string{"error": err.Error()})
+		writeJSONStatus(w, http.StatusBadRequest, map[string]string{
+			"error": err.Error(),
+		})
 		return
 	}
 
 	// добавление в БД
 	id, err := db.AddTask(&task)
 	if err != nil {
-		writeJSON(w, map[string]string{"error": err.Error()})
+		writeJSONStatus(w, http.StatusInternalServerError, map[string]string{
+			"error": err.Error(),
+		})
 		return
 	}
 
-	writeJSON(w, map[string]int64{"id": id})
+	writeJSONStatus(w, http.StatusOK, map[string]int64{
+		"id": id,
+	})
 }
